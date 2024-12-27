@@ -1,0 +1,147 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MAX_MOVIES 5
+#define MAX_SEATS 50
+
+// Structure to store movie information
+typedef struct {
+    char name[50];
+    char genre[30];
+    float price;
+    int availableSeats;
+} Movie;
+
+// Structure to store booking information
+typedef struct {
+    char customerName[50];
+    char movieName[50];
+    int seatNumber;
+    float price;
+} Booking;
+
+Movie movies[MAX_MOVIES];
+Booking bookings[MAX_SEATS];
+int bookingCount = 0;
+
+// Function prototypes
+void initializeMovies();
+void displayMovies();
+void bookTicket();
+void displayBookings();
+
+int main() {
+    int choice;
+    initializeMovies();
+
+    while (1) {
+        printf("\n=== Movie Ticket Booking System ===\n");
+        printf("1. Display Movies\n");
+        printf("2. Book a Ticket\n");
+        printf("3. View Bookings\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); // Clear newline
+
+        switch (choice) {
+            case 1:
+                displayMovies();
+                break;
+            case 2:
+                bookTicket();
+                break;
+            case 3:
+                displayBookings();
+                break;
+            case 4:
+                printf("Thank you for using Movie Ticket Booking System!\n");
+                exit(0);
+            default:
+                printf("Invalid choice, please try again.\n");
+        }
+    }
+    return 0;
+}
+
+// Initialize sample movie data
+void initializeMovies() {
+    strcpy(movies[0].name, "Inception");
+    strcpy(movies[0].genre, "Sci-Fi");
+    movies[0].price = 10.5;
+    movies[0].availableSeats = 20;
+
+    strcpy(movies[1].name, "Titanic");
+    strcpy(movies[1].genre, "Romance");
+    movies[1].price = 8.0;
+    movies[1].availableSeats = 15;
+
+    strcpy(movies[2].name, "The Matrix");
+    strcpy(movies[2].genre, "Action");
+    movies[2].price = 9.5;
+    movies[2].availableSeats = 25;
+}
+
+// Display available movies
+void displayMovies() {
+    printf("\nAvailable Movies:\n");
+    for (int i = 0; i < MAX_MOVIES; i++) {
+        if (strlen(movies[i].name) > 0) {
+            printf("%d. %s (%s) - $%.2f - Available Seats: %d\n", i + 1, movies[i].name, movies[i].genre, movies[i].price, movies[i].availableSeats);
+        }
+    }
+}
+
+// Book a ticket
+void bookTicket() {
+    int movieChoice, seats;
+    char customerName[50];
+
+    displayMovies();
+    printf("\nEnter the number of the movie you want to book: ");
+    scanf("%d", &movieChoice);
+    getchar();
+
+    if (movieChoice < 1 || movieChoice > MAX_MOVIES || movies[movieChoice - 1].availableSeats <= 0) {
+        printf("Invalid choice or no seats available.\n");
+        return;
+    }
+
+    printf("Enter your name: ");
+    fgets(customerName, 50, stdin);
+    customerName[strcspn(customerName, "\n")] = 0;
+
+    printf("Enter the number of seats: ");
+    scanf("%d", &seats);
+
+    if (seats <= 0 || seats > movies[movieChoice - 1].availableSeats) {
+        printf("Invalid seat count.\n");
+        return;
+    }
+
+    // Add booking
+    for (int i = 0; i < seats; i++) {
+        strcpy(bookings[bookingCount].customerName, customerName);
+        strcpy(bookings[bookingCount].movieName, movies[movieChoice - 1].name);
+        bookings[bookingCount].seatNumber = bookingCount + 1;
+        bookings[bookingCount].price = movies[movieChoice - 1].price;
+        bookingCount++;
+    }
+
+    movies[movieChoice - 1].availableSeats -= seats;
+    printf("Booking successful! Enjoy your movie.\n");
+}
+
+// Display all bookings
+void displayBookings() {
+    if (bookingCount == 0) {
+        printf("No bookings found.\n");
+        return;
+    }
+    printf("\nAll Bookings:\n");
+    for (int i = 0; i < bookingCount; i++) {
+        printf("Booking %d: %s booked seat %d for movie %s at $%.2f\n",
+               i + 1, bookings[i].customerName, bookings[i].seatNumber, bookings[i].movieName, bookings[i].price);
+    }
+}
